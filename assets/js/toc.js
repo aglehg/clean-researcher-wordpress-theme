@@ -250,11 +250,44 @@
     } );
   }
 
+  // ── Desktop TOC collapse ───────────────────────────────────────────────────
+
+  function setupDesktopTocToggle() {
+    const sidebar = document.querySelector( '[data-toc-sidebar]' );
+    if ( ! sidebar ) { return; }
+
+    const btn  = sidebar.querySelector( '[data-toc-collapse-btn]' );
+    const icon = sidebar.querySelector( '[data-toc-collapse-icon]' );
+    if ( ! btn || ! icon ) { return; }
+
+    const collapsedClass = 'is-collapsed';
+
+    function syncToggleState() {
+      const isCollapsed = sidebar.classList.contains( collapsedClass );
+      btn.setAttribute( 'aria-expanded', String( ! isCollapsed ) );
+      btn.setAttribute(
+        'aria-label',
+        isCollapsed ? 'Expand table of contents' : 'Minimize table of contents'
+      );
+
+      icon.classList.toggle( 'fa-arrow-left', ! isCollapsed );
+      icon.classList.toggle( 'fa-arrow-right', isCollapsed );
+    }
+
+    btn.addEventListener( 'click', function () {
+      sidebar.classList.toggle( collapsedClass );
+      syncToggleState();
+    } );
+
+    syncToggleState();
+  }
+
   // ── Init ────────────────────────────────────────────────────────────────────
 
   document.addEventListener( 'DOMContentLoaded', function () {
     buildToc();
     setupMobileDrawer();
+    setupDesktopTocToggle();
   } );
 
 } )();
