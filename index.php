@@ -20,7 +20,8 @@
       </p>
       <?php endif; ?>
       <a class="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-gray-900 no-underline hover:opacity-70 transition-opacity"
-         href="<?php the_permalink(); ?>">
+        href="<?php the_permalink(); ?>"
+        aria-label="<?php echo esc_attr( sprintf( __( 'Read more about %s', 'clean-researcher' ), get_the_title() ) ); ?>">
         <?php esc_html_e( 'Read more', 'clean-researcher' ); ?>
         <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
       </a>
@@ -29,7 +30,7 @@
     <?php endwhile; ?>
 
     <div class="pagination flex flex-wrap gap-2 mt-12">
-      <?php echo paginate_links( [ 'prev_text' => '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>', 'next_text' => '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>' ] ); // phpcs:ignore ?>
+      <?php echo paginate_links( [ 'prev_text' => '<i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i><span>' . esc_html__( 'Previous page', 'clean-researcher' ) . '</span>', 'next_text' => '<span>' . esc_html__( 'Next page', 'clean-researcher' ) . '</span><i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>' ] ); // phpcs:ignore ?>
     </div>
 
   <?php else : ?>

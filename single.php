@@ -43,6 +43,24 @@
       <?php the_content(); ?>
     </div>
 
+    <?php
+    $tags_list = get_the_tag_list(
+      '<span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">',
+      '</span> <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700">',
+      '</span>'
+    );
+    ?>
+    <?php if ( $tags_list ) : ?>
+    <div class="mt-10 border-t border-gray-200 pt-6">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">
+        <?php esc_html_e( 'Tags', 'clean-researcher' ); ?>
+      </h2>
+      <div class="flex flex-wrap gap-2 text-sm">
+        <?php echo wp_kses_post( $tags_list ); ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
     <?php wp_link_pages( [ 'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'clean-researcher' ), 'after' => '</div>' ] ); ?>
 
   </article>

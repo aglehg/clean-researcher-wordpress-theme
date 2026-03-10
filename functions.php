@@ -97,6 +97,69 @@ function clean_researcher_google_font_url(): string {
     return 'https://fonts.googleapis.com/css2?' . implode( '&', array_map( fn( $f ) => 'family=' . $f, $families ) ) . '&display=swap';
 }
 
+/**
+ * Build a meta description with sensible fallbacks.
+ */
+function clean_researcher_get_meta_description(): string {
+    if ( is_singular() ) {
+        $post = get_queried_object();
+
+        if ( $post instanceof WP_Post ) {
+            if ( has_excerpt( $post ) ) {
+                return wp_trim_words( wp_strip_all_tags( (string) get_the_excerpt( $post ) ), 28, '...' );
+            }
+
+            $content = (string) get_post_field( 'post_content', $post );
+            $content = strip_shortcodes( $content );
+            $content = wp_strip_all_tags( $content );
+            $content = preg_replace( '/\s+/', ' ', $content );
+
+            if ( is_string( $content ) ) {
+                $content = trim( $content );
+            } else {
+                $content = '';
+            }
+
+            if ( '' !== $content ) {
+                return wp_trim_words( $content, 28, '...' );
+            }
+        }
+    }
+
+    $default = (string) get_theme_mod( 'clean_researcher_meta_description', '' );
+    if ( '' !== trim( $default ) ) {
+        return wp_trim_words( wp_strip_all_tags( $default ), 28, '...' );
+    }
+
+    return wp_trim_words( wp_strip_all_tags( (string) get_bloginfo( 'description' ) ), 28, '...' );
+}
+
+/**
+ * Print meta description unless handled by a dedicated SEO plugin.
+ */
+function clean_researcher_meta_description_tag(): void {
+    if ( is_admin() ) {
+        return;
+    }
+
+    if (
+        defined( 'WPSEO_VERSION' ) ||
+        defined( 'RANK_MATH_VERSION' ) ||
+        defined( 'AIOSEO_VERSION' ) ||
+        defined( 'SEOPRESS_VERSION' )
+    ) {
+        return;
+    }
+
+    $description = clean_researcher_get_meta_description();
+    if ( '' === $description ) {
+        return;
+    }
+
+    echo '<meta name="description" content="' . esc_attr( $description ) . '">' . "\n";
+}
+add_action( 'wp_head', 'clean_researcher_meta_description_tag', 5 );
+
 function clean_researcher_enqueue_assets(): void {
     $theme_version = wp_get_theme()->get( 'Version' );
     $style_path    = get_theme_file_path( '/dist/main.css' );
@@ -121,6 +184,20 @@ function clean_researcher_enqueue_assets(): void {
     }
 }
 add_action( 'wp_enqueue_scripts', 'clean_researcher_enqueue_assets' );
+
+/**
+ * Add editor hints in the block editor document sidebar.
+ */
+function clean_researcher_enqueue_editor_assets(): void {
+    wp_enqueue_script(
+        'clean-researcher-editor-hints',
+        get_template_directory_uri() . '/assets/js/editor-hints.js',
+        [ 'wp-plugins', 'wp-edit-post', 'wp-element', 'wp-data', 'wp-i18n' ],
+        wp_get_theme()->get( 'Version' ),
+        true
+    );
+}
+add_action( 'enqueue_block_editor_assets', 'clean_researcher_enqueue_editor_assets' );
 
 function clean_researcher_font_css_vars(): void {
     $title_font = get_theme_mod( 'clean_researcher_font_title', '' );

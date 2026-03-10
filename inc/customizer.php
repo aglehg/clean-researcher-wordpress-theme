@@ -63,6 +63,12 @@ function clean_researcher_sanitize_toc_depth( $value ): int {
     return $depth;
 }
 
+function clean_researcher_sanitize_meta_description( $value ): string {
+    $sanitized = sanitize_textarea_field( (string) $value );
+
+    return trim( preg_replace( '/\s+/', ' ', $sanitized ) );
+}
+
 function clean_researcher_customize_register( WP_Customize_Manager $wp_customize ): void {
     $wp_customize->add_section(
         'clean_researcher_theme_options',
@@ -70,6 +76,26 @@ function clean_researcher_customize_register( WP_Customize_Manager $wp_customize
             'title'       => __( 'Clean Researcher Theme', 'clean-researcher' ),
             'priority'    => 30,
             'description' => __( 'Typography and article layout settings for the Clean Researcher theme.', 'clean-researcher' ),
+        ]
+    );
+
+    $wp_customize->add_setting(
+        'clean_researcher_meta_description',
+        [
+            'default'           => '',
+            'sanitize_callback' => 'clean_researcher_sanitize_meta_description',
+            'transport'         => 'refresh',
+            'type'              => 'theme_mod',
+        ]
+    );
+
+    $wp_customize->add_control(
+        'clean_researcher_meta_description',
+        [
+            'label'       => __( 'Default meta description', 'clean-researcher' ),
+            'description' => __( 'Used when a singular post/page has no excerpt or content summary. On posts/pages, the Excerpt is the editable primary source.', 'clean-researcher' ),
+            'section'     => 'clean_researcher_theme_options',
+            'type'        => 'textarea',
         ]
     );
 
