@@ -25,10 +25,13 @@
       <figure class="mt-8 mb-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
         <?php
         the_post_thumbnail(
-          'full',
+          'clean-researcher-featured',
           [
             'class'   => 'block w-full h-auto',
             'loading' => 'eager',
+            'decoding' => 'async',
+            'fetchpriority' => 'high',
+            'sizes' => esc_attr( clean_researcher_featured_image_sizes() ),
           ]
         );
         ?>

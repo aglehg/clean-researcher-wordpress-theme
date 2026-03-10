@@ -17,6 +17,9 @@ function clean_researcher_setup(): void {
     add_theme_support( 'responsive-embeds' );
     add_theme_support( 'editor-styles' );
 
+    // Large-enough source for desktop while keeping responsive srcset candidates.
+    add_image_size( 'clean-researcher-featured', 1600, 0, false );
+
     if ( file_exists( get_theme_file_path( '/dist/main.css' ) ) ) {
         add_editor_style( 'dist/main.css' );
     }
@@ -24,6 +27,43 @@ function clean_researcher_setup(): void {
     register_nav_menus( [ 'primary' => __( 'Primary Menu', 'clean-researcher' ) ] );
 }
 add_action( 'after_setup_theme', 'clean_researcher_setup' );
+
+/**
+ * Sizes hint for single post featured image.
+ */
+function clean_researcher_featured_image_sizes(): string {
+    $content_width = clean_researcher_get_content_width();
+
+    return '(max-width: 768px) 100vw, ' . (int) $content_width . 'px';
+}
+
+/**
+ * Apply a mobile-friendly sizes hint to images rendered in post content.
+ *
+ * @param string $filtered_image Filtered HTML img tag.
+ * @param string $context        Context where the image is rendered.
+ * @param int    $attachment_id  Attachment ID.
+ */
+function clean_researcher_content_image_sizes( string $filtered_image, string $context, int $attachment_id ): string {
+    unset( $context, $attachment_id );
+
+    if ( ! is_singular() || false === strpos( $filtered_image, '<img' ) ) {
+        return $filtered_image;
+    }
+
+    $sizes = esc_attr( clean_researcher_featured_image_sizes() );
+
+    if ( false !== stripos( $filtered_image, ' sizes=' ) ) {
+        $updated = preg_replace( '/\ssizes=("|\')(.*?)\1/i', ' sizes="' . $sizes . '"', $filtered_image, 1 );
+
+        return is_string( $updated ) ? $updated : $filtered_image;
+    }
+
+    $updated = preg_replace( '/<img\b/i', '<img sizes="' . $sizes . '"', $filtered_image, 1 );
+
+    return is_string( $updated ) ? $updated : $filtered_image;
+}
+add_filter( 'wp_content_img_tag', 'clean_researcher_content_image_sizes', 20, 3 );
 
 function clean_researcher_content_width(): void {
     $GLOBALS['content_width'] = clean_researcher_get_content_width();
