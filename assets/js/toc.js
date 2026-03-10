@@ -60,15 +60,20 @@
     const headings = Array.from( content.querySelectorAll( selector ) );
 
     if ( headings.length < 2 ) {
-      // Not enough headings – hide the TOC entirely.
+      // Not enough headings – hide every TOC shell completely.
       const sidebar = document.querySelector( '[data-toc-sidebar]' );
       const btn     = document.querySelector( '.toc-mobile-btn' );
       const drawer  = document.getElementById( 'toc-drawer' );
       const overlay = document.getElementById( 'toc-overlay' );
-      if ( sidebar ) { sidebar.hidden = true; }
-      if ( btn )     { btn.hidden = true; }
-      if ( drawer )  { drawer.hidden = true; }
-      if ( overlay ) { overlay.hidden = true; }
+
+      [ sidebar, btn, drawer, overlay ].forEach( function ( el ) {
+        if ( ! el ) { return; }
+        el.hidden = true;
+        el.setAttribute( 'aria-hidden', 'true' );
+        // Force hide because utility classes like xl:block can override [hidden].
+        el.style.display = 'none';
+      } );
+
       return;
     }
 

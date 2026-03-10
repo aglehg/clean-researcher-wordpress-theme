@@ -20,6 +20,20 @@
       <?php if ( has_excerpt() ) : ?>
       <p class="text-gray-600 leading-relaxed mb-0"><?php the_excerpt(); ?></p>
       <?php endif; ?>
+
+      <?php if ( has_post_thumbnail() ) : ?>
+      <figure class="mt-8 mb-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+        <?php
+        the_post_thumbnail(
+          'full',
+          [
+            'class'   => 'block w-full h-auto',
+            'loading' => 'eager',
+          ]
+        );
+        ?>
+      </figure>
+      <?php endif; ?>
     </header>
 
     <div class="prose prose-gray max-w-none prose-headings:font-title">
