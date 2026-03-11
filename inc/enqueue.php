@@ -33,8 +33,6 @@ function clean_researcher_enqueue_assets(): void {
         wp_enqueue_style( 'clean-researcher-google-fonts', $gf_url, [], null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
     }
 
-    wp_enqueue_style( 'font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css', [], '6.5.2' );
-
     wp_enqueue_script( 'clean-researcher-toc', get_template_directory_uri() . '/assets/js/toc.js', [], $theme_version, true );
     wp_localize_script(
         'clean-researcher-toc',
@@ -49,6 +47,64 @@ function clean_researcher_enqueue_assets(): void {
     }
 }
 add_action( 'wp_enqueue_scripts', 'clean_researcher_enqueue_assets' );
+
+/**
+ * Inline only the above-the-fold baseline styles to reduce render blocking.
+ */
+function clean_researcher_print_critical_css(): void {
+    if ( is_admin() ) {
+        return;
+    }
+
+    $css = <<<'CSS'
+body{margin:0;background:#fff;color:#111827;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:var(--font-body,system-ui,sans-serif)}
+h1,h2,h3,h4,h5,h6{font-family:var(--font-title,Georgia,serif)}
+.skip-link{position:absolute;left:-9999px;top:0;background:#111827;color:#fff;padding:.5rem 1rem;font-size:.875rem;z-index:9999}
+.skip-link:focus{left:0}
+.clean-researcher-frame{max-width:var(--layout-max,1320px);margin-left:auto;margin-right:auto}
+.clean-researcher-shell{max-width:var(--layout-max,1320px);margin-left:auto;margin-right:auto;padding:3rem 1.5rem}
+.site-nav ul{display:flex;gap:1.5rem;list-style:none;margin:0;padding:0}
+.site-nav a{text-decoration:none;color:#6b7280;font-size:.875rem}
+.site-nav a:hover{color:#111827}
+.clean-researcher-content{max-width:var(--content-max,760px)}
+.h-10{height:2.5rem}
+.w-auto{width:auto}
+.block{display:block}
+.object-contain{object-fit:contain}
+CSS;
+
+    echo '<style id="clean-researcher-critical-css">' . $css . '</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+add_action( 'wp_head', 'clean_researcher_print_critical_css', 2 );
+
+/**
+ * Load selected stylesheets asynchronously to move them out of the critical path.
+ */
+function clean_researcher_async_style_loader_tag( string $html, string $handle, string $href, string $media ): string {
+    if ( is_admin() ) {
+        return $html;
+    }
+
+    $async_handles = [
+        'clean-researcher-main',
+        'clean-researcher-google-fonts',
+    ];
+
+    if ( ! in_array( $handle, $async_handles, true ) ) {
+        return $html;
+    }
+
+    $media_attr = '';
+    if ( '' !== $media && 'all' !== $media ) {
+        $media_attr = ' media="' . esc_attr( $media ) . '"';
+    }
+
+    $preload  = '<link rel="preload" as="style" id="' . esc_attr( $handle ) . '-css" href="' . esc_url( $href ) . '" onload="this.onload=null;this.rel=\'stylesheet\'"' . $media_attr . '>';
+    $fallback = '<noscript><link rel="stylesheet" id="' . esc_attr( $handle ) . '-css-noscript" href="' . esc_url( $href ) . '"' . $media_attr . '></noscript>';
+
+    return $preload . $fallback;
+}
+add_filter( 'style_loader_tag', 'clean_researcher_async_style_loader_tag', 10, 4 );
 
 /**
  * Add editor hints in the block editor document sidebar.

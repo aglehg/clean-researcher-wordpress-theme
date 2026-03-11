@@ -35,7 +35,7 @@
 <button class="fixed top-4 right-4 z-50 xl:hidden flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded shadow-sm cursor-pointer toc-mobile-btn"
         aria-label="<?php esc_attr_e( 'Open table of contents', 'clean-researcher' ); ?>"
         aria-expanded="false" aria-controls="toc-drawer">
-  <i class="fa-solid fa-bars text-sm" aria-hidden="true"></i>
+  <span class="text-base leading-none" aria-hidden="true">&#9776;</span>
 </button>
 
 <div class="fixed inset-0 bg-black/25 z-40 hidden" id="toc-overlay" aria-hidden="true"></div>

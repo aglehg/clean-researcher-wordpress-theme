@@ -292,8 +292,7 @@
         isCollapsed ? 'Expand table of contents' : 'Minimize table of contents'
       );
 
-      icon.classList.toggle( 'fa-arrow-left', ! isCollapsed );
-      icon.classList.toggle( 'fa-arrow-right', isCollapsed );
+      icon.innerHTML = isCollapsed ? '&rarr;' : '&larr;';
     }
 
     btn.addEventListener( 'click', function () {

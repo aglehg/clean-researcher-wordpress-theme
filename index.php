@@ -23,14 +23,14 @@
         href="<?php the_permalink(); ?>"
         aria-label="<?php echo esc_attr( sprintf( __( 'Read more about %s', 'clean-researcher' ), get_the_title() ) ); ?>">
         <?php esc_html_e( 'Read more', 'clean-researcher' ); ?>
-        <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+        <span class="text-xs leading-none" aria-hidden="true">&rarr;</span>
       </a>
     </article>
 
     <?php endwhile; ?>
 
     <div class="pagination flex flex-wrap gap-2 mt-12">
-      <?php echo paginate_links( [ 'prev_text' => '<i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i><span>' . esc_html__( 'Previous page', 'clean-researcher' ) . '</span>', 'next_text' => '<span>' . esc_html__( 'Next page', 'clean-researcher' ) . '</span><i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>' ] ); // phpcs:ignore ?>
+      <?php echo paginate_links( [ 'prev_text' => '<span class="text-xs leading-none" aria-hidden="true">&larr;</span><span>' . esc_html__( 'Previous page', 'clean-researcher' ) . '</span>', 'next_text' => '<span>' . esc_html__( 'Next page', 'clean-researcher' ) . '</span><span class="text-xs leading-none" aria-hidden="true">&rarr;</span>' ] ); // phpcs:ignore ?>
     </div>
 
   <?php else : ?>

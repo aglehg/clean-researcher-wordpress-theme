@@ -12,7 +12,7 @@
         <?php the_title(); ?>
       </h1>
       <div class="flex items-center gap-2 text-sm text-gray-500 border-b border-gray-200 pb-5 mb-8">
-        <i class="fa-regular fa-user text-xs" aria-hidden="true"></i>
+        <span class="text-[0.6875rem] font-semibold uppercase tracking-wide text-gray-400" aria-hidden="true"><?php esc_html_e( 'By', 'clean-researcher' ); ?></span>
         <span><?php echo esc_html( get_the_author() ); ?></span>
         <span class="text-gray-300">&bull;</span>
         <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
@@ -83,7 +83,7 @@
                 aria-controls="toc-nav"
                 aria-expanded="true"
                 aria-label="<?php esc_attr_e( 'Minimize table of contents', 'clean-researcher' ); ?>">
-          <i class="fa-solid fa-arrow-left text-xs" data-toc-collapse-icon aria-hidden="true"></i>
+          <span class="text-xs leading-none" data-toc-collapse-icon aria-hidden="true">&larr;</span>
         </button>
       </div>
       <nav id="toc-nav"><ol class="toc-list list-none p-0 m-0"></ol></nav>
@@ -95,7 +95,7 @@
 <button class="fixed top-4 right-4 z-50 xl:hidden flex items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded shadow-sm cursor-pointer toc-mobile-btn"
         aria-label="<?php esc_attr_e( 'Open table of contents', 'clean-researcher' ); ?>"
         aria-expanded="false" aria-controls="toc-drawer">
-  <i class="fa-solid fa-bars text-sm" aria-hidden="true"></i>
+  <span class="text-base leading-none" aria-hidden="true">&#9776;</span>
 </button>
 
 <div class="fixed inset-0 bg-black/25 z-40 hidden" id="toc-overlay" aria-hidden="true"></div>

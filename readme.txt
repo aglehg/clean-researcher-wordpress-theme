@@ -24,7 +24,6 @@ Main features:
 * Adjustable content width from the Customizer.
 * Optional TOC on pages.
 * TOC depth setting (H2 only by default, with H3/H4 options).
-* Font Awesome icons included.
 
 == Installation ==
 
@@ -82,14 +81,6 @@ Yes. The theme supports standard WordPress content editing and styles article co
 * Minimal article-first layout.
 * Automatic table of contents with mobile drawer.
 * Customizer options for fonts, width, and TOC behavior.
-
-== Resources ==
-
-Clean Researcher bundles third-party resources:
-
-* Font Awesome Free
-	* License: SIL OFL 1.1 (fonts), MIT (code), CC BY 4.0 (icons)
-	* Source: https://fontawesome.com
 
 == License ==
 
