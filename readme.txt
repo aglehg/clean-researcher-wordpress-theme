@@ -25,6 +25,7 @@ Main features:
 * Optional TOC on pages.
 * TOC depth setting (H2 only by default, with H3/H4 options).
 * This theme deliberately does not use jQuery
+* Lightweight built-in consent banner compatible with Google Consent Mode v2 (Site Kit).
 
 == Installation ==
 
@@ -73,6 +74,16 @@ Yes. Enable it in `Appearance > Customize > Clean Researcher Theme`.
 = Does this theme support the block editor? =
 
 Yes. The theme supports standard WordPress content editing and styles article content using the built-in prose styles.
+
+= Is there built-in GDPR consent support for Google Site Kit? =
+
+Yes. The theme includes a lightweight consent banner that:
+
+* Sets default Google Consent Mode v2 state (`denied` unless consent cookie exists).
+* Updates `ad_storage`, `analytics_storage`, `ad_user_data`, and `ad_personalization` when users accept/reject.
+* Stores consent in a first-party cookie (`cr_consent`) for 180 days.
+
+If using this built-in banner, disable overlapping CMP banner output to avoid duplicate consent UIs.
 
 == Changelog ==
 
