@@ -69,7 +69,34 @@ function clean_researcher_sanitize_meta_description( $value ): string {
     return trim( preg_replace( '/\s+/', ' ', $sanitized ) );
 }
 
+function clean_researcher_sanitize_attachment_id( $value ): int {
+    return absint( $value );
+}
+
 function clean_researcher_customize_register( WP_Customize_Manager $wp_customize ): void {
+    $wp_customize->add_setting(
+        'clean_researcher_og_image_id',
+        [
+            'default'           => 0,
+            'sanitize_callback' => 'clean_researcher_sanitize_attachment_id',
+            'transport'         => 'refresh',
+            'type'              => 'theme_mod',
+        ]
+    );
+
+    $wp_customize->add_control(
+        new WP_Customize_Media_Control(
+            $wp_customize,
+            'clean_researcher_og_image_id',
+            [
+                'label'       => __( 'Default social share image (og:image)', 'clean-researcher' ),
+                'description' => __( 'Used for social previews when no featured image is available.', 'clean-researcher' ),
+                'section'     => 'title_tagline',
+                'mime_type'   => 'image',
+            ]
+        )
+    );
+
     $wp_customize->add_section(
         'clean_researcher_theme_options',
         [

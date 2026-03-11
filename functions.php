@@ -160,6 +160,90 @@ function clean_researcher_meta_description_tag(): void {
 }
 add_action( 'wp_head', 'clean_researcher_meta_description_tag', 5 );
 
+/**
+ * Extract the first image URL from post content.
+ */
+function clean_researcher_get_first_content_image_url( int $post_id ): string {
+    $content = (string) get_post_field( 'post_content', $post_id );
+    if ( '' === $content ) {
+        return '';
+    }
+
+    if ( preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', $content, $matches ) ) {
+        return isset( $matches[1] ) ? esc_url_raw( $matches[1] ) : '';
+    }
+
+    return '';
+}
+
+/**
+ * Resolve an Open Graph image URL for the current request.
+ */
+function clean_researcher_get_og_image_url(): string {
+    $default_image_id = (int) get_theme_mod( 'clean_researcher_og_image_id', 0 );
+    $post_id = (int) get_queried_object_id();
+
+    if ( is_singular( [ 'post', 'page' ] ) && $post_id > 0 && has_post_thumbnail( $post_id ) ) {
+        $url = get_the_post_thumbnail_url( $post_id, 'full' );
+        if ( is_string( $url ) && '' !== $url ) {
+            return $url;
+        }
+    }
+
+    if ( is_singular( [ 'post', 'page' ] ) && $post_id > 0 ) {
+        $url = clean_researcher_get_first_content_image_url( $post_id );
+        if ( '' !== $url ) {
+            return $url;
+        }
+    }
+
+    if ( $default_image_id > 0 ) {
+        $url = wp_get_attachment_image_url( $default_image_id, 'full' );
+        if ( is_string( $url ) && '' !== $url ) {
+            return $url;
+        }
+    }
+
+    $site_icon = get_site_icon_url( 512 );
+    if ( is_string( $site_icon ) && '' !== $site_icon ) {
+        return $site_icon;
+    }
+
+    $screenshot_path = get_theme_file_path( '/screenshot.png' );
+    if ( file_exists( $screenshot_path ) ) {
+        return get_theme_file_uri( '/screenshot.png' );
+    }
+
+    return '';
+}
+
+/**
+ * Print explicit Open Graph image tags.
+ */
+function clean_researcher_og_image_tags(): void {
+    if ( is_admin() ) {
+        return;
+    }
+
+    if (
+        defined( 'WPSEO_VERSION' ) ||
+        defined( 'RANK_MATH_VERSION' ) ||
+        defined( 'AIOSEO_VERSION' ) ||
+        defined( 'SEOPRESS_VERSION' )
+    ) {
+        return;
+    }
+
+    $image_url = clean_researcher_get_og_image_url();
+    if ( '' === $image_url ) {
+        return;
+    }
+
+    echo '<meta property="og:image" content="' . esc_url( $image_url ) . '">' . "\n";
+    echo '<meta name="twitter:image" content="' . esc_url( $image_url ) . '">' . "\n";
+}
+add_action( 'wp_head', 'clean_researcher_og_image_tags', 6 );
+
 function clean_researcher_enqueue_assets(): void {
     $theme_version = wp_get_theme()->get( 'Version' );
     $style_path    = get_theme_file_path( '/dist/main.css' );
