@@ -17,14 +17,18 @@
     $custom_logo_id = (int) get_theme_mod( 'custom_logo', 0 );
     if ( $custom_logo_id > 0 ) :
         ?>
-      <a class="shrink-0 inline-flex items-center" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" aria-label="<?php esc_attr_e( 'Home', 'clean-researcher' ); ?>">
+      <a class="shrink-0 inline-flex items-center justify-center" style="width:40px;height:40px;" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home" aria-label="<?php esc_attr_e( 'Home', 'clean-researcher' ); ?>">
         <?php
         echo wp_get_attachment_image(
             $custom_logo_id,
             'thumbnail',
             false,
             [
-                'class' => 'h-10 w-10 w-auto object-contain block',
+                'class'         => 'block object-contain',
+                'style'         => 'width:40px;height:40px;object-fit:contain;',
+                'loading'       => 'lazy',
+                'decoding'      => 'async',
+                'fetchpriority' => 'low',
             ]
         );
         ?>
