@@ -18,7 +18,7 @@ function clean_researcher_google_font_url(): string {
         return '';
     }
 
-    return 'https://fonts.googleapis.com/css2?' . implode( '&', array_map( fn( $f ) => 'family=' . $f, $families ) ) . '&display=swap';
+    return 'https://fonts.googleapis.com/css2?' . implode( '&', array_map( fn( $f ) => 'family=' . $f, $families ) ) . '&display=optional';
 }
 
 function clean_researcher_enqueue_assets(): void {
@@ -88,6 +88,12 @@ h1,h2,h3,h4,h5,h6{font-family:var(--font-title,Georgia,serif)}
 .w-auto{width:auto}
 .block{display:block}
 .object-contain{object-fit:contain}
+.toc-rail{display:none}
+@media(min-width:1280px){.toc-rail{position:fixed;top:6.5rem;left:max(1rem,calc((100vw - var(--content-max,760px)) / 2 - 19.5rem));width:51rem;z-index:30;display:block}}
+.toc-mobile-btn{position:fixed;top:1rem;right:1rem;z-index:50;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem}
+@media(min-width:1280px){.toc-mobile-btn{display:none}}
+#toc-overlay{display:none;position:fixed;inset:0;z-index:40}
+#toc-drawer{position:fixed;top:0;right:0;height:100%;z-index:50;transform:translateX(100%)}
 CSS;
 
     echo '<style id="clean-researcher-critical-css">' . $css . '</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
