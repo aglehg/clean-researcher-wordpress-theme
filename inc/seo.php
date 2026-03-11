@@ -135,45 +135,79 @@ function clean_researcher_get_first_content_image_url( int $post_id ): string {
 }
 
 /**
- * Resolve the best available OG image URL for the current request.
+ * Resolve the best available OG image for the current request, including
+ * dimensions and alt text when the source is a WordPress attachment.
+ *
  * Priority: featured image → first content image → Customizer default → site icon → screenshot.
+ * Results are statically cached so the waterfall only runs once per request.
+ *
+ * @return array{url:string,width:int,height:int,alt:string}
  */
-function clean_researcher_get_og_image_url(): string {
+function clean_researcher_get_og_image_data(): array {
+    static $cache = null;
+    if ( null !== $cache ) {
+        return $cache;
+    }
+
+    $cache            = [ 'url' => '', 'width' => 0, 'height' => 0, 'alt' => '' ];
     $default_image_id = (int) get_theme_mod( 'clean_researcher_og_image_id', 0 );
     $post_id          = (int) get_queried_object_id();
 
     if ( is_singular( [ 'post', 'page' ] ) && $post_id > 0 && has_post_thumbnail( $post_id ) ) {
-        $url = get_the_post_thumbnail_url( $post_id, 'full' );
+        $thumb_id = (int) get_post_thumbnail_id( $post_id );
+        $url      = get_the_post_thumbnail_url( $post_id, 'full' );
         if ( is_string( $url ) && '' !== $url ) {
-            return $url;
+            $meta            = wp_get_attachment_metadata( $thumb_id );
+            $cache['url']    = $url;
+            $cache['width']  = is_array( $meta ) && isset( $meta['width'] ) ? (int) $meta['width'] : 0;
+            $cache['height'] = is_array( $meta ) && isset( $meta['height'] ) ? (int) $meta['height'] : 0;
+            $cache['alt']    = (string) get_post_meta( $thumb_id, '_wp_attachment_image_alt', true );
+            return $cache;
         }
     }
 
     if ( is_singular( [ 'post', 'page' ] ) && $post_id > 0 ) {
         $url = clean_researcher_get_first_content_image_url( $post_id );
         if ( '' !== $url ) {
-            return $url;
+            $cache['url'] = $url;
+            return $cache;
         }
     }
 
     if ( $default_image_id > 0 ) {
         $url = wp_get_attachment_image_url( $default_image_id, 'full' );
         if ( is_string( $url ) && '' !== $url ) {
-            return $url;
+            $meta            = wp_get_attachment_metadata( $default_image_id );
+            $cache['url']    = $url;
+            $cache['width']  = is_array( $meta ) && isset( $meta['width'] ) ? (int) $meta['width'] : 0;
+            $cache['height'] = is_array( $meta ) && isset( $meta['height'] ) ? (int) $meta['height'] : 0;
+            $cache['alt']    = (string) get_post_meta( $default_image_id, '_wp_attachment_image_alt', true );
+            return $cache;
         }
     }
 
     $site_icon = get_site_icon_url( 512 );
     if ( is_string( $site_icon ) && '' !== $site_icon ) {
-        return $site_icon;
+        $cache['url']    = $site_icon;
+        $cache['width']  = 512;
+        $cache['height'] = 512;
+        return $cache;
     }
 
     $screenshot_path = get_theme_file_path( '/screenshot.png' );
     if ( file_exists( $screenshot_path ) ) {
-        return get_theme_file_uri( '/screenshot.png' );
+        $cache['url'] = get_theme_file_uri( '/screenshot.png' );
+        return $cache;
     }
 
-    return '';
+    return $cache;
+}
+
+/**
+ * Convenience wrapper — returns just the URL from get_og_image_data().
+ */
+function clean_researcher_get_og_image_url(): string {
+    return clean_researcher_get_og_image_data()['url'];
 }
 
 /**
@@ -224,7 +258,8 @@ function clean_researcher_head_social_meta_tags(): void {
     $title        = wp_get_document_title();
     $description  = clean_researcher_get_meta_description();
     $canonical    = clean_researcher_get_canonical_url();
-    $image_url    = clean_researcher_get_og_image_url();
+    $image_data   = clean_researcher_get_og_image_data();
+    $image_url    = $image_data['url'];
     $site_name    = (string) get_bloginfo( 'name' );
     $locale       = str_replace( '-', '_', (string) get_locale() );
     $og_type      = is_singular( 'post' ) ? 'article' : 'website';
@@ -286,7 +321,17 @@ function clean_researcher_head_social_meta_tags(): void {
 
     if ( '' !== $image_url ) {
         echo '<meta property="og:image" content="' . esc_url( $image_url ) . '">' . "\n";
+        if ( $image_data['width'] > 0 ) {
+            echo '<meta property="og:image:width" content="' . esc_attr( (string) $image_data['width'] ) . '">' . "\n";
+            echo '<meta property="og:image:height" content="' . esc_attr( (string) $image_data['height'] ) . '">' . "\n";
+        }
+        if ( '' !== $image_data['alt'] ) {
+            echo '<meta property="og:image:alt" content="' . esc_attr( $image_data['alt'] ) . '">' . "\n";
+        }
         echo '<meta name="twitter:image" content="' . esc_url( $image_url ) . '">' . "\n";
+        if ( '' !== $image_data['alt'] ) {
+            echo '<meta name="twitter:image:alt" content="' . esc_attr( $image_data['alt'] ) . '">' . "\n";
+        }
     }
 }
 add_action( 'wp_head', 'clean_researcher_head_social_meta_tags', 7 );
@@ -304,6 +349,7 @@ function clean_researcher_schema_jsonld(): void {
     if ( is_front_page() || is_home() ) {
         $org = [
             '@type' => 'Organization',
+            '@id'   => home_url( '/' ) . '#organization',
             'name'  => (string) get_bloginfo( 'name' ),
             'url'   => home_url( '/' ),
         ];
@@ -346,6 +392,7 @@ function clean_researcher_schema_jsonld(): void {
             ],
             'publisher'        => [
                 '@type' => 'Organization',
+                '@id'   => home_url( '/' ) . '#organization',
                 'name'  => (string) get_bloginfo( 'name' ),
             ],
         ];
