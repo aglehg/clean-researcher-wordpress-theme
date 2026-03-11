@@ -74,26 +74,12 @@ function clean_researcher_print_critical_css(): void {
     }
 
     $css = <<<'CSS'
-body{margin:0;background:#fff;color:#111827;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:var(--font-body,system-ui,sans-serif)}
-h1,h2,h3,h4,h5,h6{font-family:var(--font-title,Georgia,serif)}
+body{margin:0;background:#fff}
 .skip-link{position:absolute;left:-9999px;top:0;background:#111827;color:#fff;padding:.5rem 1rem;font-size:.875rem;z-index:9999}
 .skip-link:focus{left:0}
-.clean-researcher-frame{max-width:var(--layout-max,1320px);margin-left:auto;margin-right:auto}
-.clean-researcher-shell{max-width:var(--layout-max,1320px);margin-left:auto;margin-right:auto;padding:3rem 1.5rem}
-.site-nav ul{display:flex;gap:1.5rem;list-style:none;margin:0;padding:0}
-.site-nav a{text-decoration:none;color:#6b7280;font-size:.875rem}
-.site-nav a:hover{color:#111827}
-.clean-researcher-content{max-width:var(--content-max,760px)}
-.h-10{height:2.5rem}
-.w-auto{width:auto}
-.block{display:block}
-.object-contain{object-fit:contain}
-.toc-rail{display:none}
-@media(min-width:1280px){.toc-rail{position:fixed;top:6.5rem;left:max(1rem,calc((100vw - var(--content-max,760px)) / 2 - 19.5rem));width:51rem;z-index:30;display:block}}
-.toc-mobile-btn{position:fixed;top:1rem;right:1rem;z-index:50;display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem}
-@media(min-width:1280px){.toc-mobile-btn{display:none}}
-#toc-overlay{display:none;position:fixed;inset:0;z-index:40}
-#toc-drawer{position:fixed;top:0;right:0;height:100%;z-index:50;transform:translateX(100%)}
+header{border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;min-height:72px;box-sizing:border-box}
+[data-cr-loading] header>*{visibility:hidden}
+[data-cr-loading] #main-content{visibility:hidden}
 CSS;
 
     echo '<style id="clean-researcher-critical-css">' . $css . '</style>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -120,10 +106,12 @@ function clean_researcher_async_style_loader_tag( string $html, string $handle, 
 
     $final_media = '' !== $media ? $media : 'all';
 
-    $async_link = '<link rel="stylesheet" id="' . esc_attr( $handle ) . '-css" href="' . esc_url( $href ) . '" media="print" onload="this.onload=null;this.media=\'' . esc_attr( $final_media ) . '\'">';
-    $fallback   = '<noscript><link rel="stylesheet" id="' . esc_attr( $handle ) . '-css-noscript" href="' . esc_url( $href ) . '" media="' . esc_attr( $final_media ) . '"></noscript>';
+    $remove_loading = 'clean-researcher-main' === $handle ? 'document.documentElement.removeAttribute(\'data-cr-loading\');' : '';
+    $async_link = '<link rel="stylesheet" id="' . esc_attr( $handle ) . '-css" href="' . esc_url( $href ) . '" media="print" onload="this.onload=null;this.media=\'' . esc_attr( $final_media ) . '\';' . $remove_loading . '">';
+    $noscript_extra = 'clean-researcher-main' === $handle ? '<noscript><style>[data-cr-loading] header>*,[data-cr-loading] #main-content{visibility:visible}</style></noscript>' : '';
+    $fallback        = '<noscript><link rel="stylesheet" id="' . esc_attr( $handle ) . '-css-noscript" href="' . esc_url( $href ) . '" media="' . esc_attr( $final_media ) . '"></noscript>';
 
-    return $async_link . $fallback;
+    return $async_link . $fallback . $noscript_extra;
 }
 add_filter( 'style_loader_tag', 'clean_researcher_async_style_loader_tag', 10, 4 );
 
