@@ -105,21 +105,19 @@ function clean_researcher_async_style_loader_tag( string $html, string $handle, 
     $async_handles = [
         'clean-researcher-main',
         'clean-researcher-google-fonts',
+        'cmplz-general-css',
     ];
 
     if ( ! in_array( $handle, $async_handles, true ) ) {
         return $html;
     }
 
-    $media_attr = '';
-    if ( '' !== $media && 'all' !== $media ) {
-        $media_attr = ' media="' . esc_attr( $media ) . '"';
-    }
+    $final_media = '' !== $media ? $media : 'all';
 
-    $preload  = '<link rel="preload" as="style" id="' . esc_attr( $handle ) . '-css" href="' . esc_url( $href ) . '" onload="this.onload=null;this.rel=\'stylesheet\'"' . $media_attr . '>';
-    $fallback = '<noscript><link rel="stylesheet" id="' . esc_attr( $handle ) . '-css-noscript" href="' . esc_url( $href ) . '"' . $media_attr . '></noscript>';
+    $async_link = '<link rel="stylesheet" id="' . esc_attr( $handle ) . '-css" href="' . esc_url( $href ) . '" media="print" onload="this.onload=null;this.media=\'' . esc_attr( $final_media ) . '\'">';
+    $fallback   = '<noscript><link rel="stylesheet" id="' . esc_attr( $handle ) . '-css-noscript" href="' . esc_url( $href ) . '" media="' . esc_attr( $final_media ) . '"></noscript>';
 
-    return $preload . $fallback;
+    return $async_link . $fallback;
 }
 add_filter( 'style_loader_tag', 'clean_researcher_async_style_loader_tag', 10, 4 );
 

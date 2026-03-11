@@ -1,5 +1,5 @@
 /**
- * Clean Researcher theme – TOC builder + mobile drawer
+ * Clean Researcher theme - TOC builder + mobile drawer
  *
  * 1. Scans .clean-researcher-content headings up to configured depth and injects anchor IDs.
  * 2. Builds the ordered list in both the sidebar TOC and the mobile drawer.
@@ -9,7 +9,7 @@
 ( function () {
   'use strict';
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // -- Helpers ---------------------------------------------------------------
 
   /** Convert a heading's text to a URL-friendly slug (unique). */
   const usedSlugs = {};
@@ -43,7 +43,7 @@
     return Math.max( 2, Math.min( 4, rawDepth ) );
   }
 
-  // ── Build TOC ───────────────────────────────────────────────────────────────
+  // -- Build TOC -------------------------------------------------------------
 
   function buildToc() {
     const content = document.querySelector( '.clean-researcher-content' );
@@ -60,7 +60,7 @@
     const headings = Array.from( content.querySelectorAll( selector ) );
 
     if ( headings.length < 2 ) {
-      // Not enough headings – hide every TOC shell completely.
+      // Not enough headings - hide every TOC shell completely.
       const sidebar = document.querySelector( '[data-toc-sidebar]' );
       const btn     = document.querySelector( '.toc-mobile-btn' );
       const drawer  = document.getElementById( 'toc-drawer' );
@@ -112,7 +112,7 @@
     const root     = document.createElement( 'ol' );
     root.className = 'toc-list';
 
-    // Level map: h2 → depth 0, h3 → depth 1, h4 → depth 2
+    // Level map: h2 -> depth 0, h3 -> depth 1, h4 -> depth 2
     const tagDepth = { H2: 0, H3: 1, H4: 2 };
 
     const stack = [ { el: root, depth: -1 } ]; // stack of { el, depth }
@@ -153,7 +153,7 @@
     return root;
   }
 
-  // ── Scroll spy ─────────────────────────────────────────────────────────────
+  // -- Scroll spy ------------------------------------------------------------
 
   function setupScrollSpy( headings, links ) {
     if ( ! ( 'IntersectionObserver' in window ) ) { return; }
@@ -198,7 +198,7 @@
     headings.forEach( function ( h ) { observer.observe( h ); } );
   }
 
-  // ── Mobile drawer ───────────────────────────────────────────────────────────
+  // -- Mobile drawer ---------------------------------------------------------
 
   function setupMobileDrawer() {
     const btn     = document.querySelector( '.toc-mobile-btn' );
@@ -255,7 +255,7 @@
     } );
   }
 
-  // ── Desktop TOC collapse ───────────────────────────────────────────────────
+  // -- Desktop TOC collapse --------------------------------------------------
 
   function setupDesktopTocToggle() {
     const sidebar = document.querySelector( '[data-toc-sidebar]' );
@@ -308,7 +308,7 @@
     syncToggleState();
   }
 
-  // ── Init ────────────────────────────────────────────────────────────────────
+  // -- Init ------------------------------------------------------------------
 
   document.addEventListener( 'DOMContentLoaded', function () {
     buildToc();
