@@ -20,9 +20,19 @@
          aria-label="<?php esc_attr_e( 'Table of contents', 'clean-researcher' ); ?>">
     <div class="toc-scroll max-h-[calc(100vh-8rem)] overflow-y-auto">
       <div class="toc-panel bg-gray-50 border border-gray-200 rounded p-5">
-        <p class="toc-title text-[0.72rem] font-bold uppercase tracking-widest text-gray-500 mb-3.5">
-          <?php esc_html_e( 'Contents', 'clean-researcher' ); ?>
-        </p>
+        <div class="toc-header flex items-center justify-between gap-3 mb-3.5">
+          <p class="toc-title text-[0.72rem] font-bold uppercase tracking-widest text-gray-500 mb-0">
+            <?php esc_html_e( 'Contents', 'clean-researcher' ); ?>
+          </p>
+          <button type="button"
+                  class="toc-collapse-btn inline-flex items-center justify-center w-7 h-7 rounded border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition-colors duration-150"
+                  data-toc-collapse-btn
+                  aria-controls="toc-nav"
+                  aria-expanded="true"
+                  aria-label="<?php esc_attr_e( 'Minimize table of contents', 'clean-researcher' ); ?>">
+            <span class="text-xs leading-none" data-toc-collapse-icon aria-hidden="true">&larr;</span>
+          </button>
+        </div>
         <nav id="toc-nav"><ol class="toc-list list-none p-0 m-0"></ol></nav>
       </div>
     </div>

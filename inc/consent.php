@@ -35,10 +35,10 @@ function clean_researcher_print_consent_defaults(): void {
       window.dataLayer = window.dataLayer || [];
       window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
       window.gtag('consent', 'default', {
-        ad_storage: '<?php echo esc_js( $state ); ?>',
+        ad_storage: 'denied',
         analytics_storage: '<?php echo esc_js( $state ); ?>',
-        ad_user_data: '<?php echo esc_js( $state ); ?>',
-        ad_personalization: '<?php echo esc_js( $state ); ?>',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
         wait_for_update: 500
       });
     </script>
@@ -80,10 +80,10 @@ function clean_researcher_print_consent_banner(): void {
           window.dataLayer = window.dataLayer || [];
           window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
           window.gtag('consent', 'update', {
-            ad_storage: state,
+            ad_storage: 'denied',
             analytics_storage: state,
-            ad_user_data: state,
-            ad_personalization: state
+            ad_user_data: 'denied',
+            ad_personalization: 'denied'
           });
         }
 
