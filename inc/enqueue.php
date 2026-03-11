@@ -52,7 +52,7 @@ add_action( 'wp_enqueue_scripts', 'clean_researcher_enqueue_assets' );
  * Remove jQuery from frontend requests.
  */
 function clean_researcher_remove_frontend_jquery(): void {
-    if ( is_admin() ) {
+    if ( is_admin() || is_customize_preview() ) {
         return;
     }
 
