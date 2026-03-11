@@ -266,6 +266,23 @@
     if ( ! btn || ! icon ) { return; }
 
     const collapsedClass = 'is-collapsed';
+    const storageKey = 'cleanResearcherTocCollapsed';
+
+    function setStoredState( isCollapsed ) {
+      try {
+        window.localStorage.setItem( storageKey, isCollapsed ? '1' : '0' );
+      } catch ( e ) {
+        // Ignore storage failures (private mode, blocked storage, etc.).
+      }
+    }
+
+    function getStoredState() {
+      try {
+        return window.localStorage.getItem( storageKey ) === '1';
+      } catch ( e ) {
+        return false;
+      }
+    }
 
     function syncToggleState() {
       const isCollapsed = sidebar.classList.contains( collapsedClass );
@@ -281,8 +298,13 @@
 
     btn.addEventListener( 'click', function () {
       sidebar.classList.toggle( collapsedClass );
+      setStoredState( sidebar.classList.contains( collapsedClass ) );
       syncToggleState();
     } );
+
+    if ( getStoredState() ) {
+      sidebar.classList.add( collapsedClass );
+    }
 
     syncToggleState();
   }
