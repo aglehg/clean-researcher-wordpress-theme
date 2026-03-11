@@ -22,9 +22,18 @@
       PluginPostStatusInfo,
       null,
       createElement(
-        'span',
-        { className: 'clean-researcher-editor-hint' },
-        __( 'Excerpt is used for SEO meta description.', 'clean-researcher' )
+        'div',
+        { className: 'clean-researcher-editor-hint-wrap' },
+        createElement(
+          'p',
+          { className: 'clean-researcher-editor-hint' },
+          __( 'Excerpt is used for SEO meta description.', 'clean-researcher' )
+        ),
+        createElement(
+          'p',
+          { className: 'clean-researcher-editor-hint' },
+          __( 'Add meaningful alt text to images for accessibility and image SEO.', 'clean-researcher' )
+        )
       )
     );
   }

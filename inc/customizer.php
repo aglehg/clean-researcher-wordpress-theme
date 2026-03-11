@@ -73,7 +73,47 @@ function clean_researcher_sanitize_attachment_id( $value ): int {
     return absint( $value );
 }
 
+function clean_researcher_sanitize_twitter_handle( $value ): string {
+    $handle = sanitize_text_field( (string) $value );
+    $handle = preg_replace( '/\s+/', '', $handle );
+
+    if ( ! is_string( $handle ) ) {
+        return '';
+    }
+
+    $handle = ltrim( $handle, '@' );
+
+    return preg_match( '/^[A-Za-z0-9_]{1,15}$/', $handle ) ? '@' . $handle : '';
+}
+
+function clean_researcher_sanitize_social_profiles( $value ): string {
+    $raw = sanitize_textarea_field( (string) $value );
+    $parts = preg_split( '/[\r\n,]+/', $raw );
+
+    if ( ! is_array( $parts ) ) {
+        return '';
+    }
+
+    $urls = [];
+    foreach ( $parts as $part ) {
+        $url = esc_url_raw( trim( $part ) );
+        if ( '' !== $url ) {
+            $urls[] = $url;
+        }
+    }
+
+    return implode( "\n", array_unique( $urls ) );
+}
+
 function clean_researcher_customize_register( WP_Customize_Manager $wp_customize ): void {
+    $wp_customize->add_section(
+        'clean_researcher_seo',
+        [
+            'title'    => __( 'SEO', 'clean-researcher' ),
+            'priority' => 25,
+        ]
+    );
+
     $wp_customize->add_setting(
         'clean_researcher_og_image_id',
         [
@@ -91,10 +131,50 @@ function clean_researcher_customize_register( WP_Customize_Manager $wp_customize
             [
                 'label'       => __( 'Default social share image (og:image)', 'clean-researcher' ),
                 'description' => __( 'Used for social previews when no featured image is available.', 'clean-researcher' ),
-                'section'     => 'title_tagline',
+                'section'     => 'clean_researcher_seo',
                 'mime_type'   => 'image',
             ]
         )
+    );
+
+    $wp_customize->add_setting(
+        'clean_researcher_social_profiles',
+        [
+            'default'           => '',
+            'sanitize_callback' => 'clean_researcher_sanitize_social_profiles',
+            'transport'         => 'refresh',
+            'type'              => 'theme_mod',
+        ]
+    );
+
+    $wp_customize->add_control(
+        'clean_researcher_social_profiles',
+        [
+            'label'       => __( 'Social profile URLs (sameAs)', 'clean-researcher' ),
+            'description' => __( 'Add one URL per line for official social profiles (used in Organization schema).', 'clean-researcher' ),
+            'section'     => 'clean_researcher_seo',
+            'type'        => 'textarea',
+        ]
+    );
+
+    $wp_customize->add_setting(
+        'clean_researcher_twitter_site',
+        [
+            'default'           => '',
+            'sanitize_callback' => 'clean_researcher_sanitize_twitter_handle',
+            'transport'         => 'refresh',
+            'type'              => 'theme_mod',
+        ]
+    );
+
+    $wp_customize->add_control(
+        'clean_researcher_twitter_site',
+        [
+            'label'       => __( 'Twitter/X site handle', 'clean-researcher' ),
+            'description' => __( 'Used for twitter:site meta tag. Example: @cleanresearcher', 'clean-researcher' ),
+            'section'     => 'clean_researcher_seo',
+            'type'        => 'text',
+        ]
     );
 
     $wp_customize->add_section(
@@ -121,7 +201,7 @@ function clean_researcher_customize_register( WP_Customize_Manager $wp_customize
         [
             'label'       => __( 'Default meta description', 'clean-researcher' ),
             'description' => __( 'Used when a singular post/page has no excerpt or content summary. On posts/pages, the Excerpt is the editable primary source.', 'clean-researcher' ),
-            'section'     => 'clean_researcher_theme_options',
+            'section' => 'clean_researcher_seo',
             'type'        => 'textarea',
         ]
     );

@@ -68,9 +68,9 @@
   @media (min-width: 1280px) {
     .toc-rail {
       position: fixed;
-      top: 9.5rem;
+      top: 6.5rem;
       left: max(1rem, calc((100vw - var(--content-max)) / 2 - 19.5rem));
-      width: 17.5rem;
+      width: 51rem;
       z-index: 30;
     }
   }
