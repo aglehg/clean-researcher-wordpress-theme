@@ -13,10 +13,16 @@
 
 <header class="border-b border-gray-200 px-6 py-4">
   <div class="clean-researcher-frame flex items-center justify-between gap-4">
-    <a class="font-title text-lg font-bold no-underline text-gray-900 hover:opacity-75 transition-opacity duration-150"
-       href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
-      <?php bloginfo( 'name' ); ?>
-    </a>
+    <div class="flex-1 min-w-0">
+      <?php if ( function_exists( 'clean_researcher_get_breadcrumb_items' ) && count( clean_researcher_get_breadcrumb_items() ) >= 2 ) : ?>
+        <?php clean_researcher_render_breadcrumbs( true ); ?>
+      <?php else : ?>
+      <a class="font-title text-lg font-bold no-underline text-gray-900 hover:opacity-75 transition-opacity duration-150"
+         href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
+        <?php bloginfo( 'name' ); ?>
+      </a>
+      <?php endif; ?>
+    </div>
     <?php if ( has_nav_menu( 'primary' ) ) : ?>
     <nav class="site-nav" aria-label="<?php esc_attr_e( 'Primary menu', 'clean-researcher' ); ?>">
       <?php wp_nav_menu( [ 'theme_location' => 'primary', 'menu_class' => '', 'container' => false, 'depth' => 1 ] ); ?>

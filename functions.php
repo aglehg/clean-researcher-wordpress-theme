@@ -16,6 +16,7 @@ function clean_researcher_setup(): void {
     add_theme_support( 'align-wide' );
     add_theme_support( 'responsive-embeds' );
     add_theme_support( 'editor-styles' );
+    add_theme_support( 'custom-logo', [ 'flex-width' => true, 'flex-height' => true ] );
 
     // Large-enough source for desktop while keeping responsive srcset candidates.
     add_image_size( 'clean-researcher-featured', 1600, 0, false );
@@ -98,6 +99,18 @@ function clean_researcher_google_font_url(): string {
 }
 
 /**
+ * Detect major SEO plugins to avoid duplicate tags.
+ */
+function clean_researcher_has_active_seo_plugin(): bool {
+    return (
+        defined( 'WPSEO_VERSION' ) ||
+        defined( 'RANK_MATH_VERSION' ) ||
+        defined( 'AIOSEO_VERSION' ) ||
+        defined( 'SEOPRESS_VERSION' )
+    );
+}
+
+/**
  * Build a meta description with sensible fallbacks.
  */
 function clean_researcher_get_meta_description(): string {
@@ -142,12 +155,7 @@ function clean_researcher_meta_description_tag(): void {
         return;
     }
 
-    if (
-        defined( 'WPSEO_VERSION' ) ||
-        defined( 'RANK_MATH_VERSION' ) ||
-        defined( 'AIOSEO_VERSION' ) ||
-        defined( 'SEOPRESS_VERSION' )
-    ) {
+    if ( clean_researcher_has_active_seo_plugin() ) {
         return;
     }
 
@@ -159,6 +167,122 @@ function clean_researcher_meta_description_tag(): void {
     echo '<meta name="description" content="' . esc_attr( $description ) . '">' . "\n";
 }
 add_action( 'wp_head', 'clean_researcher_meta_description_tag', 5 );
+
+/**
+ * Canonical URL for the current request.
+ */
+function clean_researcher_get_canonical_url(): string {
+    if ( is_singular() ) {
+        $canonical = wp_get_canonical_url();
+        return is_string( $canonical ) ? $canonical : '';
+    }
+
+    global $wp;
+
+    if ( isset( $wp->request ) ) {
+        return home_url( add_query_arg( [], $wp->request ) );
+    }
+
+    return home_url( '/' );
+}
+
+/**
+ * Build breadcrumb items for UI and schema use.
+ *
+ * @return array<int, array{name:string,url:string}>
+ */
+function clean_researcher_get_breadcrumb_items(): array {
+    $items = [
+        [
+            'name' => (string) get_bloginfo( 'name' ),
+            'url'  => home_url( '/' ),
+        ],
+    ];
+
+    if ( is_home() ) {
+        $items[] = [ 'name' => single_post_title( '', false ), 'url' => '' ];
+        return $items;
+    }
+
+    if ( is_singular( 'post' ) ) {
+        $posts_page_id = (int) get_option( 'page_for_posts' );
+        if ( $posts_page_id > 0 ) {
+            $items[] = [
+                'name' => get_the_title( $posts_page_id ),
+                'url'  => get_permalink( $posts_page_id ),
+            ];
+        }
+
+        $items[] = [ 'name' => get_the_title(), 'url' => '' ];
+        return $items;
+    }
+
+    if ( is_singular( 'page' ) ) {
+        $ancestors = array_reverse( get_post_ancestors( get_the_ID() ) );
+        foreach ( $ancestors as $ancestor_id ) {
+            $items[] = [
+                'name' => get_the_title( $ancestor_id ),
+                'url'  => get_permalink( $ancestor_id ),
+            ];
+        }
+
+        $items[] = [ 'name' => get_the_title(), 'url' => '' ];
+        return $items;
+    }
+
+    if ( is_category() || is_tag() || is_tax() || is_archive() ) {
+        $items[] = [ 'name' => wp_strip_all_tags( get_the_archive_title() ), 'url' => '' ];
+    }
+
+    return $items;
+}
+
+/**
+ * Render breadcrumb navigation in templates.
+ */
+function clean_researcher_render_breadcrumbs( bool $compact = false ): void {
+    $items = clean_researcher_get_breadcrumb_items();
+
+    if ( count( $items ) < 2 ) {
+        return;
+    }
+
+    $nav_class = $compact ? 'text-sm text-gray-600' : 'mb-6 text-sm text-gray-500';
+    $list_class = $compact
+        ? 'm-0 p-0 list-none flex items-center gap-1.5 min-w-0 overflow-hidden whitespace-nowrap'
+        : 'm-0 p-0 list-none flex flex-wrap items-center gap-1.5';
+    $item_class = $compact ? 'inline-flex items-center gap-1.5 min-w-0' : 'inline-flex items-center gap-1.5';
+    $current_class = $compact
+        ? 'text-gray-700 truncate max-w-[9rem] sm:max-w-[14rem] md:max-w-[20rem]'
+        : 'text-gray-700';
+    $link_class = $compact
+        ? 'text-gray-600 hover:text-gray-900 no-underline truncate max-w-[9rem] sm:max-w-[14rem] md:max-w-[20rem]'
+        : 'text-gray-600 hover:text-gray-900 no-underline';
+
+    echo '<nav class="' . esc_attr( $nav_class ) . '" aria-label="' . esc_attr__( 'Breadcrumb', 'clean-researcher' ) . '">';
+    echo '<ol class="' . esc_attr( $list_class ) . '">';
+
+    $last_index = count( $items ) - 1;
+
+    foreach ( $items as $index => $item ) {
+        $is_last = $index === $last_index;
+
+        echo '<li class="' . esc_attr( $item_class ) . '">';
+        if ( $is_last || '' === $item['url'] ) {
+            echo '<span class="' . esc_attr( $current_class ) . '">' . esc_html( $item['name'] ) . '</span>';
+        } else {
+            echo '<a class="' . esc_attr( $link_class ) . '" href="' . esc_url( $item['url'] ) . '">' . esc_html( $item['name'] ) . '</a>';
+        }
+
+        if ( ! $is_last ) {
+            echo '<span class="text-gray-300 shrink-0" aria-hidden="true">/</span>';
+        }
+        echo '</li>';
+    }
+
+    echo '</ol>';
+    echo '</nav>';
+}
 
 /**
  * Extract the first image URL from post content.
@@ -218,6 +342,23 @@ function clean_researcher_get_og_image_url(): string {
 }
 
 /**
+ * Resolve a site logo URL for social tags and Organization schema.
+ */
+function clean_researcher_get_site_logo_url(): string {
+    $custom_logo_id = (int) get_theme_mod( 'custom_logo', 0 );
+    if ( $custom_logo_id > 0 ) {
+        $logo = wp_get_attachment_image_url( $custom_logo_id, 'full' );
+        if ( is_string( $logo ) && '' !== $logo ) {
+            return $logo;
+        }
+    }
+
+    $site_icon = get_site_icon_url( 512 );
+
+    return is_string( $site_icon ) ? $site_icon : '';
+}
+
+/**
  * Print explicit Open Graph image tags.
  */
 function clean_researcher_og_image_tags(): void {
@@ -225,12 +366,7 @@ function clean_researcher_og_image_tags(): void {
         return;
     }
 
-    if (
-        defined( 'WPSEO_VERSION' ) ||
-        defined( 'RANK_MATH_VERSION' ) ||
-        defined( 'AIOSEO_VERSION' ) ||
-        defined( 'SEOPRESS_VERSION' )
-    ) {
+    if ( clean_researcher_has_active_seo_plugin() ) {
         return;
     }
 
@@ -242,7 +378,139 @@ function clean_researcher_og_image_tags(): void {
     echo '<meta property="og:image" content="' . esc_url( $image_url ) . '">' . "\n";
     echo '<meta name="twitter:image" content="' . esc_url( $image_url ) . '">' . "\n";
 }
-add_action( 'wp_head', 'clean_researcher_og_image_tags', 6 );
+/**
+ * Print canonical + social meta tags.
+ */
+function clean_researcher_head_social_meta_tags(): void {
+    if ( is_admin() || clean_researcher_has_active_seo_plugin() ) {
+        return;
+    }
+
+    $title       = wp_get_document_title();
+    $description = clean_researcher_get_meta_description();
+    $canonical   = clean_researcher_get_canonical_url();
+    $image_url   = clean_researcher_get_og_image_url();
+    $site_name   = (string) get_bloginfo( 'name' );
+    $og_type     = is_singular( 'post' ) ? 'article' : 'website';
+
+    if ( '' !== $canonical ) {
+        echo '<link rel="canonical" href="' . esc_url( $canonical ) . '">' . "\n";
+    }
+
+    echo '<meta property="og:type" content="' . esc_attr( $og_type ) . '">' . "\n";
+    echo '<meta property="og:title" content="' . esc_attr( $title ) . '">' . "\n";
+    echo '<meta property="og:description" content="' . esc_attr( $description ) . '">' . "\n";
+    echo '<meta property="og:site_name" content="' . esc_attr( $site_name ) . '">' . "\n";
+
+    if ( '' !== $canonical ) {
+        echo '<meta property="og:url" content="' . esc_url( $canonical ) . '">' . "\n";
+    }
+
+    echo '<meta name="twitter:card" content="summary_large_image">' . "\n";
+    echo '<meta name="twitter:title" content="' . esc_attr( $title ) . '">' . "\n";
+    echo '<meta name="twitter:description" content="' . esc_attr( $description ) . '">' . "\n";
+
+    if ( '' !== $image_url ) {
+        echo '<meta property="og:image" content="' . esc_url( $image_url ) . '">' . "\n";
+        echo '<meta name="twitter:image" content="' . esc_url( $image_url ) . '">' . "\n";
+    }
+}
+add_action( 'wp_head', 'clean_researcher_head_social_meta_tags', 7 );
+
+/**
+ * Print structured data for article, organization, and breadcrumbs.
+ */
+function clean_researcher_schema_jsonld(): void {
+    if ( is_admin() || clean_researcher_has_active_seo_plugin() ) {
+        return;
+    }
+
+    $graph = [];
+
+    if ( is_front_page() || is_home() ) {
+        $org = [
+            '@type' => 'Organization',
+            'name'  => (string) get_bloginfo( 'name' ),
+            'url'   => home_url( '/' ),
+        ];
+
+        $logo = clean_researcher_get_site_logo_url();
+        if ( '' !== $logo ) {
+            $org['logo'] = $logo;
+        }
+
+        $graph[] = $org;
+    }
+
+    if ( is_singular( 'post' ) ) {
+        $post_id = (int) get_queried_object_id();
+        $author_id = (int) get_post_field( 'post_author', $post_id );
+
+        $article = [
+            '@type' => 'BlogPosting',
+            'headline' => get_the_title( $post_id ),
+            'datePublished' => get_post_time( DATE_W3C, true, $post_id ),
+            'dateModified' => get_post_modified_time( DATE_W3C, true, $post_id ),
+            'mainEntityOfPage' => clean_researcher_get_canonical_url(),
+            'author' => [
+                '@type' => 'Person',
+                'name'  => get_the_author_meta( 'display_name', $author_id ),
+                'url'   => get_author_posts_url( $author_id ),
+            ],
+            'publisher' => [
+                '@type' => 'Organization',
+                'name'  => (string) get_bloginfo( 'name' ),
+            ],
+        ];
+
+        $logo = clean_researcher_get_site_logo_url();
+        if ( '' !== $logo ) {
+            $article['publisher']['logo'] = [ '@type' => 'ImageObject', 'url' => $logo ];
+        }
+
+        $image_url = clean_researcher_get_og_image_url();
+        if ( '' !== $image_url ) {
+            $article['image'] = [ $image_url ];
+        }
+
+        $graph[] = $article;
+    }
+
+    $breadcrumbs = clean_researcher_get_breadcrumb_items();
+    if ( count( $breadcrumbs ) >= 2 ) {
+        $list = [];
+        foreach ( $breadcrumbs as $index => $crumb ) {
+            $item = [
+                '@type' => 'ListItem',
+                'position' => $index + 1,
+                'name' => $crumb['name'],
+            ];
+
+            if ( '' !== $crumb['url'] ) {
+                $item['item'] = $crumb['url'];
+            }
+
+            $list[] = $item;
+        }
+
+        $graph[] = [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => $list,
+        ];
+    }
+
+    if ( empty( $graph ) ) {
+        return;
+    }
+
+    $json = [
+        '@context' => 'https://schema.org',
+        '@graph'   => $graph,
+    ];
+
+    echo '<script type="application/ld+json">' . wp_json_encode( $json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>' . "\n";
+}
+add_action( 'wp_head', 'clean_researcher_schema_jsonld', 8 );
 
 function clean_researcher_enqueue_assets(): void {
     $theme_version = wp_get_theme()->get( 'Version' );
