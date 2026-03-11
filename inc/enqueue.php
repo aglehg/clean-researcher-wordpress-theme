@@ -49,6 +49,23 @@ function clean_researcher_enqueue_assets(): void {
 add_action( 'wp_enqueue_scripts', 'clean_researcher_enqueue_assets' );
 
 /**
+ * Remove jQuery from frontend requests.
+ */
+function clean_researcher_remove_frontend_jquery(): void {
+    if ( is_admin() ) {
+        return;
+    }
+
+    wp_dequeue_script( 'jquery' );
+    wp_dequeue_script( 'jquery-core' );
+    wp_dequeue_script( 'jquery-migrate' );
+    wp_deregister_script( 'jquery' );
+    wp_deregister_script( 'jquery-core' );
+    wp_deregister_script( 'jquery-migrate' );
+}
+add_action( 'wp_enqueue_scripts', 'clean_researcher_remove_frontend_jquery', 100 );
+
+/**
  * Inline only the above-the-fold baseline styles to reduce render blocking.
  */
 function clean_researcher_print_critical_css(): void {

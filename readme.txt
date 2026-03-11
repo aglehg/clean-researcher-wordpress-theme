@@ -24,6 +24,7 @@ Main features:
 * Adjustable content width from the Customizer.
 * Optional TOC on pages.
 * TOC depth setting (H2 only by default, with H3/H4 options).
+* This theme deliberately does not use jQuery
 
 == Installation ==
 
