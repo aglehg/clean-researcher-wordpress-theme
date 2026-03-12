@@ -77,8 +77,8 @@ function clean_researcher_print_critical_css(): void {
 body{margin:0;background:#fff}
 .skip-link{position:absolute;left:-9999px;top:0;background:#111827;color:#fff;padding:.5rem 1rem;font-size:.875rem;z-index:9999}
 .skip-link:focus{left:0}
-header{border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;min-height:72px;box-sizing:border-box}
-[data-cr-loading] header>*{visibility:hidden}
+header.site-header{border-bottom:1px solid #e5e7eb;padding:1rem 1.5rem;min-height:72px;box-sizing:border-box}
+[data-cr-loading] header.site-header>*{visibility:hidden}
 [data-cr-loading] #main-content{visibility:hidden}
 CSS;
 

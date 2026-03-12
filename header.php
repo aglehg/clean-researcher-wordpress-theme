@@ -11,7 +11,7 @@
 
 <a class="skip-link" href="#main-content"><?php esc_html_e( 'Skip to content', 'clean-researcher' ); ?></a>
 
-<header class="border-b border-gray-200 px-6 py-4">
+<header class="site-header border-b border-gray-200 px-6 py-4">
   <div class="clean-researcher-frame flex items-center justify-between gap-4">
     <?php
     $custom_logo_id = (int) get_theme_mod( 'custom_logo', 0 );
