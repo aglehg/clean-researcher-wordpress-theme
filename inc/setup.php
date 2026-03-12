@@ -25,7 +25,12 @@ function clean_researcher_setup(): void {
         add_editor_style( 'dist/main.css' );
     }
 
-    register_nav_menus( [ 'primary' => __( 'Primary Menu', 'clean-researcher' ) ] );
+    register_nav_menus(
+        [
+            'primary' => __( 'Primary Menu', 'clean-researcher' ),
+            'footer'  => __( 'Footer Menu', 'clean-researcher' ),
+        ]
+    );
 }
 add_action( 'after_setup_theme', 'clean_researcher_setup' );
 
