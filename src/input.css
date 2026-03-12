@@ -245,3 +245,27 @@
 #toc-overlay.is-open {
   display: block;
 }
+
+.cr-citation-ref {
+  margin-left: 0.12rem;
+  font-size: 0.72em;
+  line-height: 0;
+  vertical-align: super;
+}
+
+.cr-citation-link {
+  text-decoration: none;
+}
+
+.cr-citation-link:hover {
+  text-decoration: underline;
+}
+
+.cr-sources ol {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.cr-sources li + li {
+  margin-top: 0.55rem;
+}

@@ -115,20 +115,6 @@ function clean_researcher_async_style_loader_tag( string $html, string $handle, 
 }
 add_filter( 'style_loader_tag', 'clean_researcher_async_style_loader_tag', 10, 4 );
 
-/**
- * Add editor hints in the block editor document sidebar.
- */
-function clean_researcher_enqueue_editor_assets(): void {
-    wp_enqueue_script(
-        'clean-researcher-editor-hints',
-        get_template_directory_uri() . '/assets/js/editor-hints.js',
-        [ 'wp-plugins', 'wp-edit-post', 'wp-element', 'wp-data', 'wp-i18n' ],
-        wp_get_theme()->get( 'Version' ),
-        true
-    );
-}
-add_action( 'enqueue_block_editor_assets', 'clean_researcher_enqueue_editor_assets' );
-
 function clean_researcher_font_css_vars(): void {
     $title_font    = get_theme_mod( 'clean_researcher_font_title', '' );
     $body_font     = get_theme_mod( 'clean_researcher_font_body', '' );

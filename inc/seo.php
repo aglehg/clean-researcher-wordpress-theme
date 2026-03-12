@@ -54,17 +54,13 @@ function clean_researcher_get_social_profile_urls(): array {
 
 /**
  * Build a meta description string with sensible fallbacks:
- * post/page excerpt → post content (trimmed) → Customizer default → bloginfo description.
+ * trimmed post/page content → Customizer default → bloginfo description.
  */
 function clean_researcher_get_meta_description(): string {
     if ( is_singular() ) {
         $post = get_queried_object();
 
         if ( $post instanceof WP_Post ) {
-            if ( has_excerpt( $post ) ) {
-                return wp_trim_words( wp_strip_all_tags( (string) get_the_excerpt( $post ) ), 28, '...' );
-            }
-
             $content = (string) get_post_field( 'post_content', $post );
             $content = strip_shortcodes( $content );
             $content = wp_strip_all_tags( $content );

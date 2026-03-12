@@ -75,6 +75,14 @@ Yes. Enable it in `Appearance > Customize > Clean Researcher Theme`.
 
 Yes. The theme supports standard WordPress content editing and styles article content using the built-in prose styles.
 
+= How do sources and citations work in the editor? =
+
+Use the `Sources` block to add the article's source list.
+
+To cite a source inside the article body, place the cursor inside a text block (for example Paragraph or Heading) and use the inline toolbar button labeled `Insert citation`.
+
+The citation control is not a separate block in the inserter. It only appears in rich text toolbars.
+
 = Is there built-in GDPR consent support for Google Site Kit? =
 
 Yes. The theme includes a lightweight consent banner that:

@@ -11,8 +11,8 @@ defined( 'ABSPATH' ) || exit;
 require get_template_directory() . '/inc/setup.php';
 require get_template_directory() . '/inc/enqueue.php';
 require get_template_directory() . '/inc/breadcrumbs.php';
+require get_template_directory() . '/inc/sources.php';
 require get_template_directory() . '/inc/seo.php';
 require get_template_directory() . '/inc/consent.php';
 require get_template_directory() . '/inc/user-profile.php';
 require get_template_directory() . '/inc/customizer.php';
-
