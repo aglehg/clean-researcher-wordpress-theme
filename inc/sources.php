@@ -31,6 +31,77 @@ function clean_researcher_register_sources_block(): void {
 add_action( 'init', 'clean_researcher_register_sources_block' );
 
 /**
+ * Return true when a URL points to a domain different from the current site.
+ *
+ * @param string $url URL to evaluate.
+ */
+function clean_researcher_is_external_source_url( string $url ): bool {
+    $target_host = wp_parse_url( $url, PHP_URL_HOST );
+    $site_host   = wp_parse_url( home_url( '/' ), PHP_URL_HOST );
+
+    if ( ! is_string( $target_host ) || ! is_string( $site_host ) ) {
+        return false;
+    }
+
+    return strtolower( $target_host ) !== strtolower( $site_host );
+}
+
+/**
+ * Ensure external source links open in a new tab.
+ *
+ * @param string $block_content Block HTML.
+ * @param array  $block         Full block data.
+ */
+function clean_researcher_add_external_source_link_attrs( string $block_content, array $block ): string {
+    if ( 'clean-researcher/sources' !== ( $block['blockName'] ?? '' ) || '' === trim( $block_content ) ) {
+        return $block_content;
+    }
+
+    if ( ! class_exists( 'DOMDocument' ) ) {
+        return $block_content;
+    }
+
+    $document = new DOMDocument();
+    $previous = libxml_use_internal_errors( true );
+    $encoded  = mb_encode_numericentity( $block_content, [ 0x80, 0x10ffff, 0, 0xffffff ], 'UTF-8' );
+    $loaded   = $document->loadHTML( $encoded, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+    libxml_clear_errors();
+    libxml_use_internal_errors( $previous );
+
+    if ( ! $loaded ) {
+        return $block_content;
+    }
+
+    $links = $document->getElementsByTagName( 'a' );
+
+    foreach ( $links as $link ) {
+        if ( ! $link instanceof DOMElement ) {
+            continue;
+        }
+
+        $href = trim( (string) $link->getAttribute( 'href' ) );
+
+        if ( '' === $href || ! clean_researcher_is_external_source_url( $href ) ) {
+            continue;
+        }
+
+        $link->setAttribute( 'target', '_blank' );
+
+        $existing_rel = trim( (string) $link->getAttribute( 'rel' ) );
+        $rel_parts = '' !== $existing_rel ? preg_split( '/\s+/', $existing_rel ) : [];
+        $rel_parts = is_array( $rel_parts ) ? array_map( 'strtolower', $rel_parts ) : [];
+        $rel_parts[] = 'noopener';
+        $rel_parts[] = 'noreferrer';
+        $rel_parts = array_values( array_unique( array_filter( $rel_parts ) ) );
+
+        $link->setAttribute( 'rel', implode( ' ', $rel_parts ) );
+    }
+
+    return $document->saveHTML() ?: $block_content;
+}
+add_filter( 'render_block', 'clean_researcher_add_external_source_link_attrs', 20, 2 );
+
+/**
  * Replace inline citation markers with numbered links based on the rendered sources block.
  *
  * @param string $content Rendered post content.

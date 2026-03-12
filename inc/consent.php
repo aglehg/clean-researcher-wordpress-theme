@@ -57,6 +57,8 @@ function clean_researcher_print_consent_banner(): void {
     if ( '' !== clean_researcher_get_consent_cookie() ) {
         return;
     }
+
+  $cookie_attributes = is_ssl() ? '; SameSite=Lax; Secure' : '; SameSite=Lax';
     ?>
     <div id="cr-consent-banner" style="position:fixed;right:1rem;bottom:1rem;z-index:9999;max-width:26rem;background:#111827;color:#fff;padding:1rem;border-radius:.75rem;box-shadow:0 10px 25px rgba(0,0,0,.25);font-size:.875rem;line-height:1.4;">
       <p style="margin:0 0 .75rem;">We use analytics cookies to understand site usage. You can accept or reject tracking.</p>
@@ -72,7 +74,7 @@ function clean_researcher_print_consent_banner(): void {
 
         function setCookie(value) {
           var maxAge = 60 * 60 * 24 * 180; // 180 days
-          document.cookie = 'cr_consent=' + value + '; path=/; max-age=' + maxAge + '; SameSite=Lax';
+          document.cookie = 'cr_consent=' + value + '; path=/; max-age=' + maxAge + '<?php echo esc_js( $cookie_attributes ); ?>';
         }
 
         function updateConsent(value) {

@@ -41,7 +41,7 @@
       <?php else : ?>
       <a class="font-title text-lg font-bold no-underline text-gray-900 hover:opacity-75 transition-opacity duration-150"
          href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
-        <?php bloginfo( 'name' ); ?>
+        <?php echo esc_html( get_bloginfo( 'name' ) ); ?>
       </a>
       <?php endif; ?>
     </div>

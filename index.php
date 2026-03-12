@@ -7,7 +7,7 @@
 
     <article id="post-<?php the_ID(); ?>" <?php post_class( 'py-8 border-b border-gray-200 first:pt-0' ); ?>>
       <h2 class="font-title text-xl font-bold mb-1.5">
-        <a class="no-underline hover:underline text-gray-900" href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+        <a class="no-underline hover:underline text-gray-900" href="<?php the_permalink(); ?>"><?php echo esc_html( get_the_title() ); ?></a>
       </h2>
       <div class="flex items-center gap-2 text-[0.8125rem] text-gray-500 mb-2.5">
         <span><?php echo esc_html( get_the_author() ); ?></span>

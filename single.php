@@ -9,7 +9,7 @@
 
     <header class="mb-10">
       <h1 class="font-title text-[clamp(1.5rem,4vw,2rem)] font-bold leading-tight mb-3">
-        <?php the_title(); ?>
+        <?php echo esc_html( get_the_title() ); ?>
       </h1>
       <div class="flex items-center gap-2 text-sm text-gray-500 border-b border-gray-200 pb-5 mb-8">
         <span class="text-[0.6875rem] font-semibold uppercase tracking-wide text-gray-400" aria-hidden="true"><?php esc_html_e( 'By', 'clean-researcher' ); ?></span>

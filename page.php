@@ -6,7 +6,7 @@
 
   <article id="post-<?php the_ID(); ?>" <?php post_class( 'clean-researcher-content mx-auto' ); ?>>
     <header class="mb-8">
-      <h1 class="font-title text-[clamp(1.5rem,4vw,2rem)] font-bold leading-tight"><?php the_title(); ?></h1>
+      <h1 class="font-title text-[clamp(1.5rem,4vw,2rem)] font-bold leading-tight"><?php echo esc_html( get_the_title() ); ?></h1>
     </header>
     <div class="prose prose-gray max-w-none prose-headings:font-title">
       <?php the_content(); ?>
