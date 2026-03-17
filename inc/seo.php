@@ -182,6 +182,19 @@ function clean_researcher_get_og_image_data(): array {
         }
     }
 
+    $custom_logo_id = (int) get_theme_mod( 'custom_logo', 0 );
+    if ( $custom_logo_id > 0 ) {
+        $url = wp_get_attachment_image_url( $custom_logo_id, 'full' );
+        if ( is_string( $url ) && '' !== $url ) {
+            $meta            = wp_get_attachment_metadata( $custom_logo_id );
+            $cache['url']    = $url;
+            $cache['width']  = is_array( $meta ) && isset( $meta['width'] ) ? (int) $meta['width'] : 0;
+            $cache['height'] = is_array( $meta ) && isset( $meta['height'] ) ? (int) $meta['height'] : 0;
+            $cache['alt']    = (string) get_bloginfo( 'name' );
+            return $cache;
+        }
+    }
+
     $site_icon = get_site_icon_url( 512 );
     if ( is_string( $site_icon ) && '' !== $site_icon ) {
         $cache['url']    = $site_icon;
