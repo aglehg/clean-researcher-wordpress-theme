@@ -278,9 +278,15 @@
 
     function getStoredState() {
       try {
-        return window.localStorage.getItem( storageKey ) === '1';
+        const storedState = window.localStorage.getItem( storageKey );
+
+        if ( null === storedState ) {
+          return true;
+        }
+
+        return storedState === '1';
       } catch ( e ) {
-        return false;
+        return true;
       }
     }
 
@@ -301,9 +307,7 @@
       syncToggleState();
     } );
 
-    if ( getStoredState() ) {
-      sidebar.classList.add( collapsedClass );
-    }
+    sidebar.classList.toggle( collapsedClass, getStoredState() );
 
     syncToggleState();
   }

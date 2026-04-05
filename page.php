@@ -15,7 +15,7 @@
 
   <?php if ( clean_researcher_show_toc_on_pages() ) : ?>
   <!-- Desktop TOC rail (outside content frame) -->
-  <aside class="toc-rail hidden xl:block"
+  <aside class="toc-rail is-collapsed hidden xl:block"
          data-toc-sidebar
          aria-label="<?php esc_attr_e( 'Table of contents', 'clean-researcher' ); ?>">
     <div class="toc-scroll max-h-[calc(100vh-8rem)] overflow-y-auto">
@@ -28,9 +28,9 @@
                   class="toc-collapse-btn inline-flex items-center justify-center w-7 h-7 rounded border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition-colors duration-150"
                   data-toc-collapse-btn
                   aria-controls="toc-nav"
-                  aria-expanded="true"
-                  aria-label="<?php esc_attr_e( 'Minimize table of contents', 'clean-researcher' ); ?>">
-            <span class="text-xs leading-none" data-toc-collapse-icon aria-hidden="true">&larr;</span>
+                  aria-expanded="false"
+                  aria-label="<?php esc_attr_e( 'Expand table of contents', 'clean-researcher' ); ?>">
+            <span class="text-xs leading-none" data-toc-collapse-icon aria-hidden="true">&rarr;</span>
           </button>
         </div>
         <nav id="toc-nav"><ol class="toc-list list-none p-0 m-0"></ol></nav>
